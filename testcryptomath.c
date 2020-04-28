@@ -172,10 +172,10 @@ void encrypt_test_1(void) {
         {0xe0, 0x37, 0x07, 0x34}
     };
     uint8_t keys[176];
-    uint8_t ans[16] = {
+    uint8_t ans[16] = {         // What I get atm
         0x39, 0x25, 0x84, 0x1d, //B8 22 FE 47
         0x02, 0xdc, 0x09, 0xfb, //6F 13 F2 CA
-        0xdc, 0x11, 0x85, 0x97, //82 11 ED 45
+        0xdc, 0x11, 0x85, 0x97, //82 11 ED 45 <-- 11 equal
         0x19, 0x6a, 0x0b, 0x32  //E3 37 58 82
     };
     generateRoundKeys(k, keys);
