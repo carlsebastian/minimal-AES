@@ -163,6 +163,32 @@ void subBytes_test_1(void) {
     }
 }
 
+void encrypt_test_1(void) {
+    uint8_t k[16] = {0x2b, 0x7e, 0x15, 0x16, 0x28, 0xae, 0xd2, 0xa6, 0xab, 0xf7, 0x15, 0x88, 0x09, 0xcf, 0x4f, 0x3c};
+    state_t s = {
+        {0x32, 0x43, 0xf6, 0xa8},
+        {0x88, 0x5a, 0x30, 0x8d},
+        {0x31, 0x31, 0x98, 0xa2},
+        {0xe0, 0x37, 0x07, 0x34}
+    };
+    uint8_t keys[176];
+    uint8_t ans[16] = {
+        0x39, 0x25, 0x84, 0x1d, //B8 22 FE 47
+        0x02, 0xdc, 0x09, 0xfb, //6F 13 F2 CA
+        0xdc, 0x11, 0x85, 0x97, //82 11 ED 45
+        0x19, 0x6a, 0x0b, 0x32  //E3 37 58 82
+    };
+    generateRoundKeys(k, keys);
+    uint8_t cipher[16];
+    encrypt(s, keys, cipher);
+    for (size_t i = 0; i < 4; i++) {
+        for (size_t j = 0; j < 4; j++) {
+            printf("%ld\n", (i*4)+j);
+            CU_ASSERT_EQUAL(s[i][j], ans[(i*4)+j])
+        }
+    }
+}
+
 /************* Test Runner Code goes here **************/
 
 int main ( void )
@@ -187,7 +213,8 @@ int main ( void )
     (NULL == CU_add_test(pSuite, "generateRoundKeys_test_1", generateRoundKeys_test_1)) ||
     (NULL == CU_add_test(pSuite, "subBytes_test_1", subBytes_test_1)) ||
     (NULL == CU_add_test(pSuite, "shiftRows_test_1", shiftRows_test_1)) ||
-    (NULL == CU_add_test(pSuite, "mixColumns_test_1", mixColumns_test_1))
+    (NULL == CU_add_test(pSuite, "mixColumns_test_1", mixColumns_test_1)) ||
+    (NULL == CU_add_test(pSuite, "encrypt_test_1", encrypt_test_1))
 
 )
 {
