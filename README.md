@@ -1,6 +1,6 @@
 # minimal-AES
 
-My attempt on coding my own version of AES. 
+My attempt on coding my own version of AES.
 
 * 128bit keys (Maybe support for 256 in the future)
 * State_t is a 4x4 matrix where the 16 byte blocks are stored for the manipulations through encryption/decryption.
@@ -10,7 +10,7 @@ My attempt on coding my own version of AES.
 
 ## To run
 `make aes`
+`./AES`
 
 ## To test
-`make tests`
-
+`make test`

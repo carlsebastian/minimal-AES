@@ -16,10 +16,12 @@ void shiftRows(state_t state);
 
 void mixColumns(state_t state);
 
-void encrypt(state_t state, uint8_t *roundkeys, uint8_t *cipher);
+void encrypt(state_t state, uint8_t *roundkeys);
 
 void generateRoundKeys(uint8_t *input_key, uint8_t *roundKeys);
 
 uint8_t *randomStringOfNBits(int size, uint8_t randomKeyArray[]);
+
+void print_state_matrix(state_t state);
 
 #endif

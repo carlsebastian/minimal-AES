@@ -19,21 +19,23 @@
 
 void print_array(uint8_t *arr, int arr_size) {
     for (size_t i = 0; i < arr_size; i++) {
-        printf("index: %ld - %x\n", i, arr[i]);
+        printf("%X ", arr[i]);
     }
+    printf("\n" );
 }
 
 
+
+
 int main(int argc, char const *argv[]) {
-    uint8_t randomKeyArray[ARRAY_SIZE];
     randomStringOfNBits(BLOCKSIZE_BITS, randomKeyArray);
     uint8_t inp_str[ARRAY_SIZE] = {'h','e','j',' ','h','e','j',' ','h','e','j',' ','h','e','j',' '};
-    printf("random Key: %s\n", randomKeyArray);
-    printf("size of random key: %lu\n", (size_t)sizeof(randomKeyArray));
+    printf("random Key: \n");
+    print_array(randomKeyArray, 16);
 
-    printf("plaintext: %s abra\n", inp_str);
-    printf("size of plaintext: %lu\n", (size_t)sizeof(inp_str));
-    printf("plaintext: %s abra\n", inp_str);
+    printf("plaintext: \n");
+    print_array(inp_str, 16);
+
     state_t state;
     setStateMatrix(inp_str, state, ARRAY_SIZE);
 
@@ -42,7 +44,9 @@ int main(int argc, char const *argv[]) {
     //print_array(roundKeys, ROUNDKEYS_SIZE);
 
     uint8_t cipher[ARRAY_SIZE];
-    encrypt(state, roundKeys, cipher);
+    encrypt(state, roundKeys);
+    printf("Cipher:\n");
+    print_state_matrix(state);
 
 
     return 0;

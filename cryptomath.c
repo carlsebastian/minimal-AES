@@ -101,7 +101,6 @@ uint8_t *randomStringOfNBits(int size, uint8_t *randomKeyArray) {
             int key = rand() % (int) (sizeof charset - 1);
             randomKeyArray[n] = charset[key];
         }
-        randomKeyArray[size/BYTE_SIZE] = '\0';
     }
     return randomKeyArray;
 }
@@ -199,11 +198,30 @@ void subWord(uint8_t *input_key) {
 *  returns:
 */
 void shiftRows(state_t state) {
-    for (size_t i = 0; i < 4; i++) {
-        for (size_t j = 0; j < i; j++) {
-            rotWord(state[i]);
-        }
-    }
+    uint8_t temp;
+
+    // Rotate first row 1 columns to left
+    temp        = state[0][1];
+    state[0][1] = state[1][1];
+    state[1][1] = state[2][1];
+    state[2][1] = state[3][1];
+    state[3][1] = temp;
+
+    // Rotate second row 2 columns to left
+    temp        = state[0][2];
+    state[0][2] = state[2][2];
+    state[2][2] = temp;
+
+    temp        = state[1][2];
+    state[1][2] = state[3][2];
+    state[3][2] = temp;
+
+    // Rotate third row 3 columns to left
+    temp        = state[0][3];
+    state[0][3] = state[3][3];
+    state[3][3] = state[2][3];
+    state[2][3] = state[1][3];
+    state[1][3] = temp;
 }
 
 void mixOneColumn(uint8_t *inp_arr) {
@@ -212,9 +230,9 @@ void mixOneColumn(uint8_t *inp_arr) {
     unsigned char c;
     unsigned char h;
     /* The array 'a' is simply a copy of the input array 'r'
-     * The array 'b' is each element of the array 'a' multiplied by 2
-     * in Rijndael's Galois field
-     * a[n] ^ b[n] is element n multiplied by 3 in Rijndael's Galois field */
+    * The array 'b' is each element of the array 'a' multiplied by 2
+    * in Rijndael's Galois field
+    * a[n] ^ b[n] is element n multiplied by 3 in Rijndael's Galois field */
     for (c = 0; c < 4; c++) {
         a[c] = inp_arr[c];
         /* h is 0xff if the high bit of r[c] is set, 0 otherwise */
@@ -241,12 +259,15 @@ void mixOneColumn(uint8_t *inp_arr) {
 */
 void mixColumns(state_t state) {
     for (size_t j = 0; j < 4; j++) {
-        uint8_t col[4] = {state[0][j],state[1][j],state[2][j],state[3][j]};
-        mixOneColumn(col);
-        state[0][j] = col[0];
-        state[1][j] = col[1];
-        state[2][j] = col[2];
-        state[3][j] = col[3];
+
+        //printf("%X\n", col[0]);
+        mixOneColumn(state[j]);
+        //printf("%X\n", col[0]);
+
+        //state[0][j] = col[0];
+        //state[1][j] = col[1];
+        //state[2][j] = col[2];
+        //state[3][j] = col[3];
     }
 }
 
@@ -264,7 +285,6 @@ void generateRoundKeys(uint8_t *input_key, uint8_t *roundKeys) {
     //
     uint8_t tempa[4];
     unsigned k,j;
-    printf("Generating Round Keys\n");
     for (size_t i = 0; i < nOfWordsKey; i++) {
         // if i < 4 (first 4 words)
         roundKeys[(i * 4) + 0] = input_key[(i * 4) + 0];
@@ -299,12 +319,12 @@ void print_state_matrix(state_t state) {
             printf("%X ", state[i][j]);
         }
     }
-    printf("\n");
-    for (size_t i = 0; i < 4; i++) {
-        for (size_t j = 0; j < 4; j++) {
-            printf("%c ", state[i][j]);
-        }
-    }
+    // printf("\n");
+    // for (size_t i = 0; i < 4; i++) {
+    //     for (size_t j = 0; j < 4; j++) {
+    //         printf("%c ", state[i][j]);
+    //     }
+    // }
     printf("\n");
 
 }
@@ -317,25 +337,20 @@ void print_state_matrix(state_t state) {
 *
 *  returns:
 */
-void encrypt(state_t state, uint8_t *roundkeys, uint8_t *cipher) {
+void encrypt(state_t state, uint8_t *roundkeys) {
     // Addroundkey
     size_t roundnr = 0;
-    print_state_matrix(state);
     addRoundKey(state, roundkeys, roundnr);
     // For loop
     for (roundnr = 1; roundnr < nRounds; roundnr++) {
         // SubBytes
         subBytes(state);
-
         // ShiftRows
         shiftRows(state);
-
         // MixColumns
         mixColumns(state);
-
         // AddRoundKey
         addRoundKey(state, roundkeys, roundnr);
-        //printf("%ld\n", roundnr);
     }
     // Last Round
     // SubBytes
@@ -346,9 +361,6 @@ void encrypt(state_t state, uint8_t *roundkeys, uint8_t *cipher) {
 
     // AddRoundKey
     addRoundKey(state, roundkeys, 10);
-    printf("Cipher:\n");
-    print_state_matrix(state);
-
 }
 
 /*
