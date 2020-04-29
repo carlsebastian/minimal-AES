@@ -291,7 +291,8 @@ void mixColumns(state_t state) {
 * Function:  multiplyBitWise
 * --------------------
 *
-*  arg1:
+*  a: first bit term
+*  b: second bit term
 *
 */
 uint8_t multiplyBitWise(uint8_t a, uint8_t b) {
