@@ -14,3 +14,6 @@ My attempt on coding my own version of AES.
 
 ## To test
 `make test`
+
+## Clean
+`make clean`
