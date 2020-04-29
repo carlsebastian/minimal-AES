@@ -134,6 +134,19 @@ void addRoundKey(state_t state, uint8_t * roundKeys, size_t roundnr) {
 }
 
 /*
+* Function:  getInvSubstitute
+* --------------------
+*  returns the inverse substitue value of input_char
+*
+*  input_char: char for which to get the inverse substitute
+*
+*  returns: the substite of input_char
+*/
+uint8_t getInvSubstitute(uint8_t input_char) {
+    return sbox_inv_table[input_char];
+}
+
+/*
 * Function:  getSubstitute
 * --------------------
 *  returns the substitue value of input_char
@@ -275,6 +288,30 @@ void mixColumns(state_t state) {
 }
 
 /*
+* Function:  multiplyBitWise
+* --------------------
+*
+*  arg1:
+*
+*/
+uint8_t multiplyBitWise(uint8_t a, uint8_t b) {
+    unsigned char p = 0;
+    unsigned char counter;
+    unsigned char hi_bit_set;
+    for(counter = 0; counter < 8; counter++) {
+        if((b & 1) == 1)
+        p ^= a;
+        hi_bit_set = (a & 0x80);
+        a <<= 1;
+        if(hi_bit_set == 0x80)
+        a ^= 0x1b;
+        b >>= 1;
+    }
+    return p;
+}
+
+
+/*
 * Function:  generateRoundKeys
 * --------------------
 *  Generates all the roundkeys needed for encryption/decryption
@@ -312,6 +349,79 @@ void generateRoundKeys(uint8_t *input_key, uint8_t *roundKeys) {
         roundKeys[j + 1] = roundKeys[k + 1] ^ tempa[1];
         roundKeys[j + 2] = roundKeys[k + 2] ^ tempa[2];
         roundKeys[j + 3] = roundKeys[k + 3] ^ tempa[3];
+    }
+}
+
+/*
+* Function:  invSubBytes
+* --------------------
+*  The inverse of the SubBytes function
+*
+*  state: the current state of the matrix
+*
+*/
+void invSubBytes(state_t state) {
+    for (size_t i = 0; i < 4; i++) {
+        for (size_t j = 0; j < 4; j++) {
+            state[i][j] = getInvSubstitute(state[i][j]);
+        }
+    }
+}
+
+/*
+* Function:  invShiftRows
+* --------------------
+*  The inverse of the ShiftRows function
+*
+*  state: the current state of the matrix
+*
+*/
+void invShiftRows(state_t state) {
+    uint8_t temp;
+
+    // Rotate first row 1 columns to right
+    temp        = state[3][1];
+    state[3][1] = state[2][1];
+    state[2][1] = state[1][1];
+    state[1][1] = state[0][1];
+    state[0][1] = temp;
+
+    // Rotate second row 2 columns to right
+    temp        = state[3][2];
+    state[3][2] = state[1][2];
+    state[1][2] = temp;
+
+    temp        = state[0][2];
+    state[0][2] = state[2][2];
+    state[2][2] = temp;
+
+    // Rotate third row 3 columns to right
+    temp        = state[3][3];
+    state[3][3] = state[0][3];
+    state[0][3] = state[1][3];
+    state[1][3] = state[2][3];
+    state[2][3] = temp;
+}
+
+/*
+* Function:  invMixColumns
+* --------------------
+*  runs inverse mixcolumn on each column in the state-matrix
+*
+*  state: the current state of the matrix
+*
+*/
+void invMixColumns(state_t state) {
+    for (size_t i = 0; i < 4; i++) {
+        unsigned char a[4];
+        unsigned char c;
+        for(c=0;c<4;c++) {
+            a[c] = state[i][c];
+        }
+        state[i][0] = multiplyBitWise(a[0],14) ^ multiplyBitWise(a[3],9) ^ multiplyBitWise(a[2],13) ^ multiplyBitWise(a[1],11);
+        state[i][1] = multiplyBitWise(a[1],14) ^ multiplyBitWise(a[0],9) ^ multiplyBitWise(a[3],13) ^ multiplyBitWise(a[2],11);
+        state[i][2] = multiplyBitWise(a[2],14) ^ multiplyBitWise(a[1],9) ^ multiplyBitWise(a[0],13) ^ multiplyBitWise(a[3],11);
+        state[i][3] = multiplyBitWise(a[3],14) ^ multiplyBitWise(a[2],9) ^ multiplyBitWise(a[1],13) ^ multiplyBitWise(a[0],11);
     }
 }
 
@@ -383,6 +493,28 @@ void encrypt(state_t state, uint8_t *roundkeys) {
 *
 *  returns:
 */
-void decrypt(state_t state, uint8_t *roundkeys, uint8_t *cipher) {
+void decrypt(state_t state, uint8_t *roundkeys) {
+    size_t roundnr = 10;
+    // Addroundkey
+    addRoundKey(state, roundkeys, roundnr);
+    // For loop
+    for (roundnr = 9; roundnr > 0; roundnr--) {
+        // InvShiftRows
+        invShiftRows(state);
+        // InvSubBytes
+        invSubBytes(state);
+        // AddRoundKey
+        addRoundKey(state, roundkeys, roundnr);
+        // InvMixColumns
+        invMixColumns(state);
+    }
+    // Last Round
+    // ShiftRows
+    invShiftRows(state);
 
+    // SubBytes
+    invSubBytes(state);
+
+    // AddRoundKey
+    addRoundKey(state, roundkeys, 0);
 }

@@ -167,6 +167,36 @@ void shiftRows_test_1(void) {
 
 }
 
+void invShiftRows_test_1(void) {
+    state_t state = {
+        {'h','e','e','j'},
+        {'h','e','e','j'},
+        {'h','e','e','j'},
+        {'h','e','e','j'}
+    };
+    invShiftRows(state);
+    CU_ASSERT_EQUAL(state[0][0], 0x68);
+    CU_ASSERT_EQUAL(state[0][1], 0x65);
+    CU_ASSERT_EQUAL(state[0][2], 0x65);
+    CU_ASSERT_EQUAL(state[0][3], 0x6a);
+
+    CU_ASSERT_EQUAL(state[1][0], 0x68);
+    CU_ASSERT_EQUAL(state[1][1], 0x65);
+    CU_ASSERT_EQUAL(state[1][2], 0x65);
+    CU_ASSERT_EQUAL(state[1][3], 0x6a);
+
+    CU_ASSERT_EQUAL(state[2][0], 0x68);
+    CU_ASSERT_EQUAL(state[2][1], 0x65);
+    CU_ASSERT_EQUAL(state[2][2], 0x65);
+    CU_ASSERT_EQUAL(state[2][3], 0x6a);
+
+    CU_ASSERT_EQUAL(state[3][0], 0x68);
+    CU_ASSERT_EQUAL(state[3][1], 0x65);
+    CU_ASSERT_EQUAL(state[3][2], 0x65);
+    CU_ASSERT_EQUAL(state[3][3], 0x6a);
+
+}
+
 void subBytes_test_1(void) {
     state_t state = {
         {'h','e','e','j'},
@@ -258,6 +288,7 @@ int main ( void )
     (NULL == CU_add_test(pSuite, "generateRoundKeys_test_1", generateRoundKeys_test_1)) ||
     (NULL == CU_add_test(pSuite, "subBytes_test_1", subBytes_test_1)) ||
     (NULL == CU_add_test(pSuite, "shiftRows_test_1", shiftRows_test_1)) ||
+    (NULL == CU_add_test(pSuite, "invShiftRows_test_1", invShiftRows_test_1)) ||
     (NULL == CU_add_test(pSuite, "mixColumns_test_1", mixColumns_test_1)) ||
     (NULL == CU_add_test(pSuite, "generateRoundKeys_test_2", generateRoundKeys_test_2)) ||
     (NULL == CU_add_test(pSuite, "encrypt_test_1", encrypt_test_1)) ||

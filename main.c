@@ -19,6 +19,7 @@ void print_array(uint8_t *arr, int arr_size) {
 }
 
 int main(int argc, char const *argv[]) {
+    uint8_t randomKeyArray[16];
     randomStringOfNBits(BLOCKSIZE_BITS, randomKeyArray);
     uint8_t inp_str[ARRAY_SIZE] = {'h','e','j',' ','h','e','j',' ','h','e','j',' ','h','e','j',' '};
     printf("random Key: \n");
@@ -39,6 +40,9 @@ int main(int argc, char const *argv[]) {
     printf("Cipher:\n");
     print_state_matrix(state);
 
+    decrypt(state, roundKeys);
+    printf("Decrypted Plaintext:\n");
+    print_state_matrix(state);
 
     return 0;
 }

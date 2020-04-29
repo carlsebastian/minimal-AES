@@ -24,4 +24,12 @@ void randomStringOfNBits(int size, uint8_t randomKeyArray[]);
 
 void print_state_matrix(state_t state);
 
+void invMixColumns(state_t state);
+
+void invShiftRows(state_t state);
+
+void invSubBytes(state_t state);
+
+void decrypt(state_t state, uint8_t *roundkeys);
+
 #endif
