@@ -58,6 +58,16 @@ static const uint8_t Rcon[11] = {
     0x8d, 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80, 0x1b, 0x36
 };
 
+/*
+* Function:  setStateMatrix
+* --------------------
+* sets the statematrix with the 16 byte input array
+*
+*  inp_str: input character array
+*  state: 4x4 matrix
+*  arr_size: size of the unput array
+*
+*/
 int setStateMatrix(uint8_t inp_str[], state_t state, int arr_size) {
     if (arr_size > 16) {
         return -1;
@@ -83,15 +93,15 @@ int setStateMatrix(uint8_t inp_str[], state_t state, int arr_size) {
 
 
 /*
-* Function:  RandomStringOfNBits
+* Function:  randomStringOfNBits
 * --------------------
-* Generates a random string of n bits
+* Generates a random character array of n bits
 *
-*  n: number of bits
+*  size: number of bits
+*  randomKeyArray: array to hold the randomkey
 *
-*  returns: a pointer to a random string of n bits
 */
-uint8_t *randomStringOfNBits(int size, uint8_t *randomKeyArray) {
+void randomStringOfNBits(int size, uint8_t *randomKeyArray) {
     const char charset[] = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
     time_t t;
     srand((unsigned) time(&t));
@@ -102,18 +112,18 @@ uint8_t *randomStringOfNBits(int size, uint8_t *randomKeyArray) {
             randomKeyArray[n] = charset[key];
         }
     }
-    return randomKeyArray;
 }
 
 /*
 * Function:  addRoundKey
 * --------------------
 *
-* xors key for round n to state matrix
+*  xors key for round n to state matrix
 *
-*  arg1:
+*  state: current state of cipher
+*  roundkeys: the complete array of roundkeys
+*  roundnr: current round
 *
-*  returns:
 */
 void addRoundKey(state_t state, uint8_t * roundKeys, size_t roundnr) {
     for (size_t i = 0; i < 4; i++) {
@@ -126,11 +136,11 @@ void addRoundKey(state_t state, uint8_t * roundKeys, size_t roundnr) {
 /*
 * Function:  getSubstitute
 * --------------------
-* Description
+*  returns the substitue value of input_char
 *
-*  arg1:
+*  input_char: char for which to get the substitute
 *
-*  returns:
+*  returns: the substite of input_char
 */
 uint8_t getSubstitute(uint8_t input_char) {
     return sbox_table[input_char];
@@ -140,11 +150,10 @@ uint8_t getSubstitute(uint8_t input_char) {
 * Function:  subBytes
 * --------------------
 *
-* xors key for round n to state matrix
+*  substitutes every byte in the state matrix
 *
-*  arg1:
+*  state: the current state of the matrix
 *
-*  returns:
 */
 void subBytes(state_t state) {
     for (size_t i = 0; i < 4; i++) {
@@ -157,11 +166,10 @@ void subBytes(state_t state) {
 /*
 * Function:  rotWord
 * --------------------
-* Description
+*  rotates a word(4 bytes) in the left direction
 *
-*  arg1:
+*  input_key: key consisting of 4 bytes
 *
-*  returns:
 */
 void rotWord(uint8_t *input_key) {
     const uint8_t tmp= input_key[0];
@@ -174,11 +182,10 @@ void rotWord(uint8_t *input_key) {
 /*
 * Function:  subWord
 * --------------------
-* Description
+*  substitutes a word(4 bytes) using the sbox-table
 *
-*  arg1:
+*  input_key: the 4 bytes that will be substituted
 *
-*  returns:
 */
 void subWord(uint8_t *input_key) {
     input_key[0] = getSubstitute(input_key[0]);
@@ -190,12 +197,10 @@ void subWord(uint8_t *input_key) {
 /*
 * Function:  shiftRows
 * --------------------
+*  shifts the rows of the state-matrix
 *
-* xors key for round n to state matrix
+*  state: the current state of the matrix
 *
-*  arg1:
-*
-*  returns:
 */
 void shiftRows(state_t state) {
     uint8_t temp;
@@ -224,6 +229,14 @@ void shiftRows(state_t state) {
     state[1][3] = temp;
 }
 
+/*
+* Function:  mixOneColumn
+* --------------------
+*  runs Rijndaels mixcolumn-function on 4 bytes(one column). Taken from wikipedia
+*
+*  inp_arr: one column in the state-matrix
+*
+*/
 void mixOneColumn(uint8_t *inp_arr) {
     unsigned char a[4];
     unsigned char b[4];
@@ -250,35 +263,25 @@ void mixOneColumn(uint8_t *inp_arr) {
 /*
 * Function:  mixColumns
 * --------------------
+*  runs mixcolumn on each column in the state-matrix
 *
-* xors key for round n to state matrix
+*  state: the current state of the matrix
 *
-*  arg1:
-*
-*  returns:
 */
 void mixColumns(state_t state) {
     for (size_t j = 0; j < 4; j++) {
-
-        //printf("%X\n", col[0]);
         mixOneColumn(state[j]);
-        //printf("%X\n", col[0]);
-
-        //state[0][j] = col[0];
-        //state[1][j] = col[1];
-        //state[2][j] = col[2];
-        //state[3][j] = col[3];
     }
 }
 
 /*
 * Function:  generateRoundKeys
 * --------------------
-* Description
+*  Generates all the roundkeys needed for encryption/decryption
 *
-*  arg1:
+*  input_key: the original key to expand
+*  roundKeys: the array to hold all roundkeys needed
 *
-*  returns:
 */
 
 void generateRoundKeys(uint8_t *input_key, uint8_t *roundKeys) {
@@ -312,7 +315,14 @@ void generateRoundKeys(uint8_t *input_key, uint8_t *roundKeys) {
     }
 }
 
-
+/*
+* Function:  print_state_matrix
+* --------------------
+*  for testing purposes. To view the current state of the matrix
+*
+*  state: the current state of the matrix
+*
+*/
 void print_state_matrix(state_t state) {
     for (size_t i = 0; i < 4; i++) {
         for (size_t j = 0; j < 4; j++) {
@@ -328,18 +338,19 @@ void print_state_matrix(state_t state) {
     printf("\n");
 
 }
+
 /*
 * Function:  encrypt
 * --------------------
-* Description
+*  encrypts the provided message held in the state-matrix
 *
-*  arg1:
+*  state: the current state of the matrix
+*  roundKeys: the array that holds all roundkeys needed
 *
-*  returns:
 */
 void encrypt(state_t state, uint8_t *roundkeys) {
-    // Addroundkey
     size_t roundnr = 0;
+    // Addroundkey
     addRoundKey(state, roundkeys, roundnr);
     // For loop
     for (roundnr = 1; roundnr < nRounds; roundnr++) {

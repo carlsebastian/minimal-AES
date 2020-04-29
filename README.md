@@ -9,8 +9,8 @@ My attempt on coding my own version of AES.
 * main - just a driver-file to run the program
 
 ## To run
-`make aes`
-`./AES`
+* Compile:  `make aes`
+* Run: `./AES`
 
 ## To test
 `make test`

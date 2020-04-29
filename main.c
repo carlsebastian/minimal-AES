@@ -11,21 +11,12 @@
 #define ARRAY_SIZE 16
 #define ROUNDKEYS_SIZE 176
 
-
-
-
-
-
-
 void print_array(uint8_t *arr, int arr_size) {
     for (size_t i = 0; i < arr_size; i++) {
         printf("%X ", arr[i]);
     }
     printf("\n" );
 }
-
-
-
 
 int main(int argc, char const *argv[]) {
     randomStringOfNBits(BLOCKSIZE_BITS, randomKeyArray);

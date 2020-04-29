@@ -4,3 +4,5 @@ test: cryptomath.c testcryptomath.c
 	gcc -Wall -c cryptomath.c
 	gcc -Wall -L/usr/local/lib -o crypto_test testcryptomath.c cryptomath.o -lcunit
 	./crypto_test
+clean:
+	rm -f *.o AES crypto_test
