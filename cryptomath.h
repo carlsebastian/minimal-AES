@@ -6,7 +6,9 @@
 // state-matrix - 2d-array holding information during encryption
 typedef uint8_t state_t[4][4];
 
-int setStateMatrix(uint8_t inp_str[], state_t state, int arr_size);
+void clearStateMatrix(state_t state);
+
+int setStateMatrix(uint8_t *inp_str, state_t state,int start);
 
 void addRoundKey(state_t state, uint8_t * roundKeys, size_t roundnr);
 

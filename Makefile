@@ -6,3 +6,12 @@ test: cryptomath.c testcryptomath.c
 	./crypto_test
 clean:
 	rm -f *.o AES crypto_test
+dbg: main.c cryptomath.c
+	gcc -g -o AES main.c cryptomath.c -fno-stack-protector
+valgrind:
+	valgrind --leak-check=full \
+         --show-leak-kinds=all \
+         --track-origins=yes \
+         --verbose \
+         --log-file=valgrind-out.txt \
+         ./AES

@@ -59,6 +59,21 @@ static const uint8_t Rcon[11] = {
 };
 
 /*
+* Function:  clearStateMatrix
+* --------------------
+* clears every cell of the state
+*
+*
+*/
+void clearStateMatrix(state_t state) {
+    for (size_t i = 0; i < 4; i++) {
+        for (size_t j = 0; j < 4; j++) {
+            state[i][j] = 0x00;
+        }
+    }
+}
+
+/*
 * Function:  setStateMatrix
 * --------------------
 * sets the statematrix with the 16 byte input array
@@ -68,17 +83,20 @@ static const uint8_t Rcon[11] = {
 *  arr_size: size of the unput array
 *
 */
-int setStateMatrix(uint8_t inp_str[], state_t state, int arr_size) {
-    if (arr_size > 16) {
-        return -1;
-    }
+int setStateMatrix(uint8_t *inp_str, state_t state, int start) {
+    // int diff = stop-start;
+    // if (diff > 16) {
+    //     return -1;
+    // }
     // for every character in input_string array put them in the state matrix
     int j = 0;
-    for (size_t i = 0; i < arr_size; i++) {
+    int inner_start = 0;
+    for (int i = start; i < start+16; i++) {
         uint8_t c = inp_str[i];
-        size_t i_inner;
-        if (i > 3) {
-            i_inner = i/4;
+        int i_inner;
+        if (inner_start > 3) {
+
+            i_inner = inner_start/4;
         } else {
             i_inner = 0;
         }
@@ -87,6 +105,7 @@ int setStateMatrix(uint8_t inp_str[], state_t state, int arr_size) {
         }
         state[i_inner][j] = c;
         j++;
+        inner_start++;
     }
     return 1;
 }
