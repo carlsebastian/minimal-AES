@@ -1,4 +1,5 @@
 # minimal-AES
+[Inspired by Tiny-AES](https://github.com/kokke/tiny-AES-c)
 
 My attempt on coding my own version of AES.
 
