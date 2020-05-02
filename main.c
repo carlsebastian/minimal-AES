@@ -156,9 +156,9 @@ void stringKeyToUINTArr(char const*inp_arr, uint8_t *randomKey) {
 int main(int argc, char const *argv[]) {
     if (argc < 2) {
         printf("\nminimal-AES\nAuthor: Sebastian\n\n");
-        printf("usage:\n\t./AES -f <file_in.txt> -r <randomKey> -d(ecrypt)/-e(ncrypt)\n\n");
+        printf("usage:\nWith existing key:\n\t./AES -f <file_in.txt> -r <randomKey> -d(ecrypt)/-e(ncrypt)\n\nRandomize new key:\n\t./AES -f <file_in.txt> -d(ecrypt)/-e(ncrypt)\n\n");
 
-    }else if (argc == 6){
+    } else if (argc == 6){
         if (argv[2][(strlen(argv[2])-4)] == '.'){
             if(strlen(argv[4]) == 16) {
                 if (strcmp(argv[5],"-d") == 0) {
@@ -184,6 +184,32 @@ int main(int argc, char const *argv[]) {
                     free(filename);
                     return 0;
                 }
+            }
+        }
+    } else if (argc == 4){
+        if (argv[2][(strlen(argv[2])-4)] == '.'){
+            if (strcmp(argv[3],"-d") == 0) {
+                printf("Decrypting...\nFile: %s\n", argv[2]);
+                uint8_t randKey[16];
+                randomStringOfNBits(128, randKey);
+                printf("Random Key:\n");
+                print_array(randKey, 16);
+                readAndDecryptFile(argv[2], randKey);
+                char *filename = strConcat(argv[2], "__decrypted.txt");
+                printf("\n\nFINISHED DECRYPTING\nSee file: %s\n\n", filename);
+                free(filename);
+                return 0;
+            } else if(strcmp(argv[3],"-e") == 0) {
+                printf("Encrypting...\nFile: %s\n", argv[2]);
+                uint8_t randKey[16];
+                randomStringOfNBits(128, randKey);
+                printf("Random Key:\n");
+                print_array(randKey, 16);
+                readAndEncryptFile(argv[2], randKey);
+                char *filename = strConcat(argv[2], "__encrypted.txt");
+                printf("\n\nFINISHED ENCRYPTING\nSee file: %s\n\n", filename);
+                free(filename);
+                return 0;
             }
         }
         printf("\nERROR: Make sure you provide the right arguments.\n\n\t./AES -f <file_in> -r <randomKey> -d(ecrypt)/-e(ncrypt)\n\n");
