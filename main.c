@@ -149,7 +149,7 @@ void readAndDecryptFile(char const *file_in, uint8_t *randomKey) {
 
 void stringKeyToUINTArr(char const*inp_arr, uint8_t *randomKey) {
     for (size_t i = 0; i < 16; i++) {
-        randomKey[i] = inp_arr[0];
+        randomKey[i] = inp_arr[i];
     }
 }
 
