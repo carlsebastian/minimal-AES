@@ -18,7 +18,7 @@ void print_array(uint8_t *arr, int arr_size) {
     printf("\n" );
 }
 
-uint8_t* readFilePlainText(FILE *fp) {
+uint8_t* readFilePlainText(FILE *fp, int decrypting) {
     uint8_t c;
     int nch = 0;
     int size = 256;
@@ -43,14 +43,10 @@ uint8_t* readFilePlainText(FILE *fp) {
                 exit(1);
             }
         }
-        if(c == 0xA || c == 0xFF) {
-            buf[nch++] = 0x0;
-        } else {
-            buf[nch++] = c;
-        }
+        buf[nch++] = c;
     }
     while (nch < size) {
-        buf[nch] = 0x0;
+        buf[nch] = 0xFF;
         nch++;
     }
     return buf;
@@ -60,12 +56,11 @@ void deleteInputBuffer(uint8_t *buf) {
     free(buf);
 }
 
-void writeFilePlainText(state_t state, FILE *fp_write) {
+void writeFilePlainText(state_t state, FILE *fp_write, int decrypting) {
     for (size_t i = 0; i < 4; i++) {
         for (size_t j = 0; j < 4; j++) {
-            if (state[i][j] == 0x0) {
-                fputc(0xA, fp_write);
-                break;
+            if(decrypting == 1 && state[i][j] == 0xFF) {
+                continue;
             }
             fputc(state[i][j], fp_write);
         }
@@ -75,11 +70,11 @@ void writeFilePlainText(state_t state, FILE *fp_write) {
 void encryptFile(uint8_t *buf, uint8_t *roundKeys, FILE *fp_write) {
     state_t state;
     int start = 0;
-    while(buf[start] != 0x00 || buf[start] != '\000') {
+    while(buf[start] != 0xFF) {
         clearStateMatrix(state);
         setStateMatrix(buf, state, start);
         encrypt(state, roundKeys);
-        writeFilePlainText(state, fp_write);
+        writeFilePlainText(state, fp_write,0);
         start = start+16;
     }
 }
@@ -87,10 +82,10 @@ void encryptFile(uint8_t *buf, uint8_t *roundKeys, FILE *fp_write) {
 void decryptFile(uint8_t *buf, uint8_t *roundKeys, FILE *fp_write) {
     state_t state;
     int start = 0;
-    while(buf[start] != 0x00 || buf[start] != '\000') {
+    while(buf[start] != 0xFF) {
         setStateMatrix(buf, state, start);
         decrypt(state, roundKeys);
-        writeFilePlainText(state, fp_write);
+        writeFilePlainText(state, fp_write, 1);
         start = start+16;
         clearStateMatrix(state);
     }
@@ -107,14 +102,11 @@ char* strConcat(const char *s1, const char *s2)
 
 void readAndEncryptFile(char const *file_in, uint8_t *randomKey) {
     FILE *fp_read = fopen(file_in, "r");
-    uint8_t *arr = readFilePlainText(fp_read);
+    uint8_t *arr = readFilePlainText(fp_read, 0);
     fclose(fp_read);
 
-    //uint8_t randomKeyArray[16];
-    //randomStringOfNBits(BLOCKSIZE_BITS, randomKeyArray);
     uint8_t roundKeys[ROUNDKEYS_SIZE];
     generateRoundKeys(randomKey, roundKeys);
-
 
     FILE *fp_write;
     char *filename = strConcat(file_in, "__encrypted.txt");
@@ -129,11 +121,9 @@ void readAndEncryptFile(char const *file_in, uint8_t *randomKey) {
 
 void readAndDecryptFile(char const *file_in, uint8_t *randomKey) {
     FILE *fp_read = fopen(file_in, "r");
-    uint8_t *arr = readFilePlainText(fp_read);
+    uint8_t *arr = readFilePlainText(fp_read,1);
     fclose(fp_read);
 
-    //uint8_t randomKeyArray[16];
-    //randomStringOfNBits(BLOCKSIZE_BITS, randomKeyArray);
     uint8_t roundKeys[ROUNDKEYS_SIZE];
     generateRoundKeys(randomKey, roundKeys);
 
