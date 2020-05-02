@@ -117,7 +117,9 @@ void readAndEncryptFile(char const *file_in, uint8_t *randomKey) {
 
 
     FILE *fp_write;
-    fp_write = fopen(strConcat(file_in, "__encrypted.txt"), "w");
+    char *filename = strConcat(file_in, "__encrypted.txt");
+    fp_write = fopen(filename, "w");
+    free(filename);
     encryptFile(arr, roundKeys, fp_write);
     deleteInputBuffer(arr);
     fclose(fp_write);
@@ -136,7 +138,9 @@ void readAndDecryptFile(char const *file_in, uint8_t *randomKey) {
     generateRoundKeys(randomKey, roundKeys);
 
     FILE *fp_write_2;
-    fp_write_2 = fopen(strConcat(file_in, "__decrypted.txt"), "w");
+    char *filename = strConcat(file_in, "__decrypted.txt");
+    fp_write_2 = fopen(filename, "w");
+    free(filename);
     decryptFile(arr, roundKeys, fp_write_2);
 
     deleteInputBuffer(arr);
@@ -164,7 +168,9 @@ int main(int argc, char const *argv[]) {
                     printf("Random Key:\n");
                     print_array(randKey, 16);
                     readAndDecryptFile(argv[2], randKey);
-                    printf("\n\nFINISHED DECRYPTING\nSee file: %s\n\n", strConcat(argv[2], "__decrypted.txt"));
+                    char *filename = strConcat(argv[2], "__decrypted.txt");
+                    printf("\n\nFINISHED DECRYPTING\nSee file: %s\n\n", filename);
+                    free(filename);
                     return 0;
                 } else if(strcmp(argv[5],"-e") == 0) {
                     printf("Encrypting...\nFile: %s\n", argv[2]);
@@ -173,7 +179,9 @@ int main(int argc, char const *argv[]) {
                     printf("Random Key:\n");
                     print_array(randKey, 16);
                     readAndEncryptFile(argv[2], randKey);
-                    printf("\n\nFINISHED ENCRYPTING\nSee file: %s\n\n", strConcat(argv[2], "__encrypted.txt"));
+                    char *filename = strConcat(argv[2], "__encrypted.txt");
+                    printf("\n\nFINISHED ENCRYPTING\nSee file: %s\n\n", filename);
+                    free(filename);
                     return 0;
                 }
             }

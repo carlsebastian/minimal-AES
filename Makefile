@@ -14,4 +14,4 @@ valgrind:
          --track-origins=yes \
          --verbose \
          --log-file=valgrind-out.txt \
-         ./AES
+		 ./AES -f input.txt -r eeeeeeeeeeeeeeee -d
