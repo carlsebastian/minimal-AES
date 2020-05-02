@@ -212,8 +212,8 @@ int main(int argc, char const *argv[]) {
                 return 0;
             }
         }
-        printf("\nERROR: Make sure you provide the right arguments.\n\n\t./AES -f <file_in> -r <randomKey> -d(ecrypt)/-e(ncrypt)\n\n");
 
     }
+    printf("\nERROR: Make sure you provide the right arguments.\n\n\t./AES -f <file_in> -r <randomKey> -d(ecrypt)/-e(ncrypt)\n\n");
     return 0;
 }
